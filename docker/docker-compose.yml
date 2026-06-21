@@ -5,7 +5,7 @@ services:
     container_name: splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_PASSWORD=AcmeCorp2024!
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
     ports:
       - "8000:8000"   # Web UI
       - "8088:8088"   # HTTP Event Collector (ingesta de logs)

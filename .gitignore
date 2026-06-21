@@ -10,3 +10,4 @@ splunk-data/
 __pycache__/
 *.pyc
 .env
+docker/.env

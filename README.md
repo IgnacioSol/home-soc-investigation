@@ -61,7 +61,7 @@ docker compose up -d
 ```
 
 Splunk UI → http://localhost:8000  
-Username: `admin` / Password: `AcmeCorp2024!`
+Username: `admin` / Password: set in `docker/.env` (see `docker/.env.example`)
 
 Wait ~60 seconds for Splunk to initialize on first run.
 
