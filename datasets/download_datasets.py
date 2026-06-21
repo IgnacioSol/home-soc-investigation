@@ -33,7 +33,7 @@ DATASETS = [
     {
         "technique": "T1021.001",
         "name": "rdp_lateral_movement",
-        "url": f"{BASE_URL}/T1021.001/atomic_red_team/windows-security.log",
+        "url": f"{BASE_URL}/T1021.001/rdp_session_established/4624_10_logon.log",
         "filename": "T1021.001_rdp.log",
     },
 ]

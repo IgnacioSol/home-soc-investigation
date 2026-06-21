@@ -1,0 +1,7 @@
+EventType="SetValue" TargetObject IN ("*\\CurrentVersion\\Run*", "*\\CurrentVersion\\RunOnce*")
+
+TargetImage="*\\lsass.exe" GrantedAccess IN ("*0x1010*", "*0x1410*", "*0x1438*")
+
+source="WinEventLog:Security" EventCode=4624 LogonType=10
+
+Image="*\\powershell.exe" CommandLine IN ("*-enc*", "*-WindowStyle Hidden*", "*-ExecutionPolicy Bypass*", "*-NoProfile*")

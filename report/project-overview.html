@@ -476,6 +476,31 @@
       </div>
     </section>
 
+    <!-- PowerShell Detection -->
+    <section>
+      <h2>Key Detection Logic — Malicious PowerShell (T1059.001)</h2>
+      <p>One of the core detections in this investigation targets malicious PowerShell execution. The Sigma rule converts to SPL that looks for four specific flags that together indicate an attacker, not a legitimate user:</p>
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="stack-name"><code style="font-family:monospace;font-size:13px">-WindowStyle Hidden</code></div>
+          <div class="stack-desc">Hides the PowerShell window from the screen. A legitimate user never needs to hide their own terminal.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name"><code style="font-family:monospace;font-size:13px">-ExecutionPolicy Bypass</code></div>
+          <div class="stack-desc">Windows blocks unsigned scripts by default. This flag bypasses that policy — a signal that the script would otherwise be rejected by the system.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name"><code style="font-family:monospace;font-size:13px">-NoProfile</code></div>
+          <div class="stack-desc">Skips loading the user profile, avoiding activity logging that would normally occur on profile load.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name"><code style="font-family:monospace;font-size:13px">-enc</code></div>
+          <div class="stack-desc">Runs a Base64-encoded command — the most common technique to obfuscate malicious PowerShell so it can't be read at a glance.</div>
+        </div>
+      </div>
+      <p style="margin-top:16px">All four together = someone running PowerShell who doesn't want to be seen or traced. This is what the Sigma rule detects and sigma-cli translates to an SPL query runnable in Splunk.</p>
+    </section>
+
     <!-- Connection to Project 1 -->
     <section>
       <h2>Connection to Project #1</h2>
