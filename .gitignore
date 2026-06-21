@@ -1,0 +1,12 @@
+# Downloaded datasets (large binary/log files)
+datasets/*.log
+datasets/*.json
+datasets/*.gz
+
+# Splunk Docker volume data
+splunk-data/
+
+# Python
+__pycache__/
+*.pyc
+.env
