@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home SOC Investigation Lab — Project Overview</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 48px;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 40px;
+      margin-bottom: 48px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1e3a5f;
+      color: #60a5fa;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .meta-value a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #60a5fa;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    /* Scenario box */
+    .scenario-box {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-left: 3px solid #ef4444;
+      border-radius: 6px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .scenario-box .label {
+      font-size: 11px;
+      color: #ef4444;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .scenario-box p {
+      color: #cbd5e1;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Attack chain */
+    .attack-chain {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 20px 0;
+    }
+
+    .attack-step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-tactic {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 130px;
+      flex-shrink: 0;
+    }
+
+    .step-technique {
+      font-size: 14px;
+      color: #e2e8f0;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .step-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .color-1 { background: #1a2744; color: #60a5fa; }
+    .color-2 { background: #2d1b4e; color: #a78bfa; }
+    .color-3 { background: #1a3a2a; color: #34d399; }
+    .color-4 { background: #3a1f1f; color: #f87171; }
+
+    /* Tech stack */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stack-item {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .stack-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .stack-desc {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Skills */
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .skill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #60a5fa;
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    /* Repo structure */
+    .code-block {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .code-block .dir { color: #60a5fa; }
+    .code-block .file { color: #cbd5e1; }
+    .code-block .comment { color: #475569; }
+
+    /* Connection section */
+    .connection-box {
+      background: #0d1f3c;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 24px;
+    }
+
+    .connection-box p {
+      color: #93c5fd;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .connection-box a {
+      color: #60a5fa;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    /* Print */
+    @media print {
+      body { background: white; color: #1e293b; }
+      .page { padding: 40px; }
+      .header { border-color: #e2e8f0; }
+      h1 { color: #0f172a; }
+      h2 { color: #2563eb; border-color: #e2e8f0; }
+      h3 { color: #1e293b; }
+      p { color: #475569; }
+      .badge { background: #dbeafe; color: #1d4ed8; }
+      .scenario-box { background: #fef2f2; border-color: #fecaca; }
+      .scenario-box p { color: #1e293b; }
+      .attack-step { background: #f8fafc; border-color: #e2e8f0; }
+      .step-technique { color: #1e293b; }
+      .stack-item { background: #f8fafc; border-color: #e2e8f0; }
+      .code-block { background: #f1f5f9; border-color: #e2e8f0; color: #334155; }
+      .code-block .dir { color: #2563eb; }
+      .code-block .file { color: #1e293b; }
+      .code-block .comment { color: #94a3b8; }
+      .connection-box { background: #eff6ff; border-color: #bfdbfe; }
+      .connection-box p { color: #1d4ed8; }
+      .footer { border-color: #e2e8f0; }
+      .footer-name { color: #1e293b; }
+      .meta-value { color: #334155; }
+      .step-id { color: #94a3b8; }
+      .skill-item { color: #475569; }
+      .stack-desc { color: #94a3b8; }
+      .color-1 { background: #dbeafe; color: #1d4ed8; }
+      .color-2 { background: #ede9fe; color: #7c3aed; }
+      .color-3 { background: #d1fae5; color: #065f46; }
+      .color-4 { background: #fee2e2; color: #991b1b; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="badge">Portfolio Project #2 — Cybersecurity</div>
+      <h1>Home SOC Investigation Lab</h1>
+      <p class="subtitle">Full SOC Tier 1/2 incident investigation using Splunk, real attack simulation data, and custom Sigma detection rules</p>
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">Analyst</span>
+          <span class="meta-value">Ignacio Solano</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repository</span>
+          <span class="meta-value"><a href="https://github.com/IgnacioSol/home-soc-investigation">github.com/IgnacioSol/home-soc-investigation</a></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Related Project</span>
+          <span class="meta-value"><a href="https://github.com/IgnacioSol/sigma-detection-rules">sigma-detection-rules</a></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Year</span>
+          <span class="meta-value">2026</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- What is this -->
+    <section>
+      <h2>What Is This Project</h2>
+      <p>This project simulates a real workday for a SOC Tier 2 analyst: receiving an escalated alert, investigating a multi-stage intrusion from initial execution through lateral movement, building a complete attack timeline, and delivering a professional incident report.</p>
+      <p>The investigation runs against real attack simulation logs from Splunk's own Threat Research Team, using the same tooling (Splunk, SPL queries) used in enterprise Security Operations Centers.</p>
+
+      <div class="scenario-box">
+        <div class="label">Incident Scenario</div>
+        <p>A Windows endpoint at <strong>AcmeCorp</strong> triggered multiple security alerts. Investigation reveals a full APT-style intrusion: malicious PowerShell execution, LSASS credential dumping via Mimikatz, registry-based persistence, and RDP lateral movement to an internal host. The analyst role is SOC Tier 2 — escalated case, full investigation required.</p>
+      </div>
+    </section>
+
+    <!-- Attack Chain -->
+    <section>
+      <h2>Attack Chain Investigated</h2>
+      <p>The investigation follows the attacker's kill chain across four MITRE ATT&amp;CK techniques, each with a corresponding detection rule and Splunk query.</p>
+
+      <div class="attack-chain">
+        <div class="attack-step">
+          <div class="step-number color-1">1</div>
+          <div class="step-tactic">Execution</div>
+          <div class="step-technique">Malicious PowerShell — encoded commands, suspicious flags</div>
+          <div class="step-id">T1059.001</div>
+        </div>
+        <div class="attack-step">
+          <div class="step-number color-2">2</div>
+          <div class="step-tactic">Credential Access</div>
+          <div class="step-technique">LSASS Memory Dump — Mimikatz credential extraction</div>
+          <div class="step-id">T1003.001</div>
+        </div>
+        <div class="attack-step">
+          <div class="step-number color-3">3</div>
+          <div class="step-tactic">Persistence</div>
+          <div class="step-technique">Registry Run Keys — autostart on logon</div>
+          <div class="step-id">T1547.001</div>
+        </div>
+        <div class="attack-step">
+          <div class="step-number color-4">4</div>
+          <div class="step-tactic">Lateral Movement</div>
+          <div class="step-technique">RDP to internal host — using stolen credentials</div>
+          <div class="step-id">T1021.001</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section>
+      <h2>Technology Stack</h2>
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="stack-name">Splunk Enterprise 9.2</div>
+          <div class="stack-desc">SIEM platform for log ingestion, indexing, and SPL-based investigation. Deployed locally via Docker.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">splunk/attack_data</div>
+          <div class="stack-desc">Real attack simulation logs from Splunk's Threat Research Team, organized by MITRE ATT&CK technique ID.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">sigma-cli</div>
+          <div class="stack-desc">Converts Sigma detection rules (YAML) to SPL queries for execution in Splunk.</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-name">Docker</div>
+          <div class="stack-desc">Containerized Splunk instance for reproducible, portable lab environment.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Demonstrated -->
+    <section>
+      <h2>Skills Demonstrated</h2>
+      <div class="skills-list">
+        <div class="skill-item"><div class="skill-dot"></div>Operating Splunk as a SIEM: data ingestion, index management, sourcetype configuration</div>
+        <div class="skill-item"><div class="skill-dot"></div>Writing SPL queries to detect malicious activity across Windows Event Logs and Sysmon</div>
+        <div class="skill-item"><div class="skill-dot"></div>Converting Sigma detection rules to platform-specific query languages using sigma-cli</div>
+        <div class="skill-item"><div class="skill-dot"></div>Correlating events across multiple log sources to reconstruct an attack timeline</div>
+        <div class="skill-item"><div class="skill-dot"></div>Identifying IOCs (file hashes, IPs, registry keys, process names) from raw log data</div>
+        <div class="skill-item"><div class="skill-dot"></div>Mapping observed attacker behavior to the MITRE ATT&CK framework</div>
+        <div class="skill-item"><div class="skill-dot"></div>Producing a professional SOC Tier 2 incident report with executive summary, timeline, and remediation recommendations</div>
+      </div>
+    </section>
+
+    <!-- Repo Structure -->
+    <section>
+      <h2>Repository Structure</h2>
+      <div class="code-block">
+<span class="dir">home-soc-investigation/</span>
+├── <span class="dir">docker/</span>
+│   └── <span class="file">docker-compose.yml</span>       <span class="comment"># Splunk instance (one command to run)</span>
+├── <span class="dir">datasets/</span>
+│   ├── <span class="file">download_datasets.py</span>     <span class="comment"># Downloads attack logs per technique</span>
+│   └── <span class="file">ingest.py</span>               <span class="comment"># Sends logs to Splunk via HEC</span>
+├── <span class="dir">sigma-to-spl/</span>
+│   └── <span class="dir">converted/</span>               <span class="comment"># SPL output from sigma-cli</span>
+├── <span class="dir">investigation/</span>
+│   └── <span class="file">queries.md</span>              <span class="comment"># All SPL queries built during investigation</span>
+└── <span class="dir">report/</span>
+    └── <span class="file">incident-report.md</span>      <span class="comment"># Final professional incident report</span>
+      </div>
+    </section>
+
+    <!-- Connection to Project 1 -->
+    <section>
+      <h2>Connection to Project #1</h2>
+      <div class="connection-box">
+        <p>The detection rules used in this investigation were written from scratch in Project #1 (<a href="https://github.com/IgnacioSol/sigma-detection-rules">sigma-detection-rules</a>), covering each ATT&CK technique in the Sigma format — a vendor-neutral standard used by real threat detection teams. This project is where those rules are converted to SPL and validated against real attack data, completing the full detection engineering lifecycle: <strong>write rule → translate → test against real logs → investigate → report.</strong></p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-name">Ignacio Solano — Cybersecurity Portfolio</div>
+      <div class="footer-links">
+        <a href="https://github.com/IgnacioSol/home-soc-investigation">home-soc-investigation</a>
+        <a href="https://github.com/IgnacioSol/sigma-detection-rules">sigma-detection-rules</a>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
