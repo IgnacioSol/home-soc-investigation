@@ -169,9 +169,15 @@ haber salido al parqueo. Fue quien le entregó el vaso al abuelo en el brindis (
 
 ### 03 · NICOLE — equipo 1 — soporte
 
-**Perfil.** Fotografía todo compulsivamente. Fijación larga con un tal Josué, ahora
-sale con un tal Luis. Su carrete es, otra vez, el ancla temporal del caso — pero esta
-vez las fotos no dicen nada obvio: hay que mirarlas.
+**Perfil.** Mejor amiga de Fío desde hace años; cae a estas reuniones como una más
+sin ser familia. Fotografía todo compulsivamente. Fijación larga con un tal Josué,
+ahora sale con un tal Luis. Su carrete es, otra vez, el ancla temporal del caso —
+pero esta vez las fotos no dicen nada obvio: hay que mirarlas.
+
+**La capa que aporta ser amiga de la cómplice.** Las dos fotos que hunden a Marce las
+tomó la mejor amiga de Fío. La oficina tuvo que preguntarse si estaba filtrando el
+carrete para proteger a su amiga — y consigna que entregó las sesenta tomas completas,
+sin que se le pidiera. Nicole no sabe lo que tiene en la mano.
 
 **DECL. I y II.** Consistentes, con deriva normal en un par de horas.
 
