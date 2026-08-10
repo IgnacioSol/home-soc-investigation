@@ -365,7 +365,7 @@ contradicción más escandalosa del expediente.
 | 01 | Portada — folder de archivo, sello CONFIDENCIAL |
 | 02 | Informe preliminar — narrativa y línea de tiempo |
 | 03 | Ficha de la víctima — silueta negra |
-| 04 | Cómo se juega — protocolo de la unidad y reglas de puntaje |
+| 04 | Cómo se puntúa — reglas, penalización y desempate |
 | 05–14 | Fichas de sujeto ×10 — con las dos declaraciones |
 | 15–24 | Evidencias A–J ×10 |
 | 25 | Tablero de corcho en blanco — 10 polaroids, para trazar con lápiz rojo |
@@ -374,13 +374,20 @@ contradicción más escandalosa del expediente.
 
 Se imprimen 3 copias de las páginas 1–27. La 28 solo para el anfitrión.
 
+**Modo de composición de cada evidencia.** Las piezas fotográficas y los
+montajes (B, C, E, F, J) van **a sangre**, ocupando la hoja entera: enmarcadas
+quedan tan reducidas que su propio texto baja de 5 pt y deja de leerse impreso.
+Las documentales (A, D, G, H) van enmarcadas con paspartú. El acta cruzada (I)
+se compone **nativa** en el PDF, no como imagen, porque es una tabla de diez
+filas de texto corrido y es la pieza que más se relee durante la partida.
+
 ---
 
 ## 9. PENDIENTES
 
-- [ ] **Ubicar a NICOLE (03)** — ¿nieta de sangre, y de qué tía? ¿O agregada?
-      Si es agregada, la simetría 5 y 5 queda perfecta.
+- [x] **Ubicar a NICOLE (03)** — mejor amiga de Fío, sin vínculo familiar.
+      Simetría 5 nietos / 5 agregados confirmada.
 - [ ] **Las 10 fotos**, cada archivo con nombre distinto (`FIO.jpg`, `MARCE.jpg`, …)
 - [ ] **Apellido del abuelo** — por defecto va tachado en negro
-- [ ] **Foto de la víctima** — por defecto silueta; si aparece `photos/VICTIMA.*`
-      el script la usa automáticamente
+- [x] **Foto de la víctima** — silueta por defecto; si aparece `photos/VICTIMA.*`
+      el pipeline de retratos la sobrescribe y la página no cambia

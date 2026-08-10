@@ -1189,6 +1189,61 @@ def ev_C():
     return img
 
 
+# ─── Tablero de la unidad ────────────────────────────────────────────────────
+
+DIR_RETRATOS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "photos_fbi")
+
+
+def tablero():
+    """
+    Corcho con las diez polaroids pegadas y la mitad inferior libre.
+
+    El espacio vacío es intencional: ahí es donde la unidad traza sus propias
+    conexiones con lápiz rojo. Un tablero ya resuelto sería decoración; este
+    es la herramienta de trabajo de la partida.
+    """
+    import caso
+
+    ancho = 1000
+    alto = round(ancho * RATIO_PAGINA)
+    img = ev.corcho(ancho, alto, semilla=12)
+
+    titulo = _nota(520, 72, "", ["PERSONAS DE INTERÉS"], tam_linea=26)
+    ev.pegar_rotado(img, titulo, (300, 156), -1.1)
+    ev.chincheta(img, (300, 128))
+
+    columnas = 5
+    ancho_pol = 176
+    for i, sujeto in enumerate(caso.SUJETOS):
+        fila, columna = divmod(i, columnas)
+        cx = ancho / columnas * (columna + 0.5)
+        cy = 330 + fila * 250
+
+        archivo = os.path.join(DIR_RETRATOS,
+                               f"{sujeto['alias'].replace('Í', 'I')}.jpg")
+        if os.path.exists(archivo):
+            with Image.open(archivo) as retrato:
+                interior = retrato.convert("RGB").copy()
+        else:
+            interior = ev.silueta(400, fondo=(70, 62, 50))
+
+        pol = ev.polaroid(interior, sujeto["alias"], ancho=ancho_pol, borde=12,
+                          borde_inferior=44, tam_pie=22, semilla=i + 2)
+        angulo = (-3.4, 2.6, -1.8, 3.1, -2.2)[i % 5]
+        ev.pegar_rotado(img, pol, (cx, cy), angulo)
+        ev.cinta(img, (cx, cy - ancho_pol * 0.60), ancho=86, alto=28,
+                 angulo=angulo * 2)
+
+    # Un par de tarjetas en blanco: sirven para anotar hipótesis.
+    for x, y, ang in ((250, 940, -2.4), (700, 1000, 1.8)):
+        tarjeta = _nota(300, 150, "", [""], fondo=(236, 231, 214))
+        ev.pegar_rotado(img, tarjeta, (x, y), ang)
+        ev.chincheta(img, (x, y - 62), color=(58, 74, 132))
+
+    return img
+
+
 # ─── Registro y CLI ──────────────────────────────────────────────────────────
 
 GENERADORES = {
@@ -1201,12 +1256,31 @@ GENERADORES = {
     "G": ev_G,
     "H": ev_H,
     "J": ev_J,
+    "TABLERO": tablero,
 }
+
+
+def retrato_victima():
+    """
+    Silueta de la víctima, para cuando no hay fotografía.
+
+    Se escribe en photos_fbi/ como un retrato más, así la ficha no necesita
+    saber nada especial: si algún día aparece photos/VICTIMA.*, el pipeline de
+    retratos lo sobrescribe y la página no cambia.
+    """
+    os.makedirs(DIR_RETRATOS, exist_ok=True)
+    destino = os.path.join(DIR_RETRATOS, "VICTIMA.jpg")
+    ev.envejecer(ev.silueta(900, fondo=(74, 66, 54)), sigma=2.0).save(
+        destino, "JPEG", quality=94, subsampling=0)
+    return destino
 
 
 def main(letras=None):
     os.makedirs(SALIDA, exist_ok=True)
     letras = [x.upper() for x in (letras or GENERADORES)]
+    if not os.path.exists(os.path.join(DIR_RETRATOS, "VICTIMA.jpg")):
+        print(f"  ✓  {os.path.basename(retrato_victima())}   silueta del occiso")
+
     for letra in letras:
         if letra not in GENERADORES:
             print(f"  ·  {letra}: sin generador todavía, se omite")
