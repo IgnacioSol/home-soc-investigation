@@ -65,6 +65,7 @@ TIEMPO_CRITICO = ("20:05", "21:20", "21:51")
 SUJETOS = [
     {
         "num": "01",
+        "cambio": "Precisa la permanencia del Sujeto n.º 02 en la cocina: de «en algún momento» a «todo el rato, desde las nueve».",
         "alias": "FÍO",
         "equipo": "Equipo 1",
         "presente": "Sí — anfitriona",
@@ -95,6 +96,7 @@ SUJETOS = [
     },
     {
         "num": "02",
+        "cambio": "Sin variación. Texto idéntico en ambas tomas.",
         "alias": "MARCE",
         "equipo": "Equipo 2",
         "presente": "Sí",
@@ -122,6 +124,7 @@ SUJETOS = [
     },
     {
         "num": "03",
+        "cambio": "Matiza la hora de una fotografía y remite al archivo.",
         "alias": "NICOLE",
         "equipo": "Equipo 1",
         "presente": "Sí",
@@ -150,6 +153,7 @@ SUJETOS = [
     },
     {
         "num": "04",
+        "cambio": "Agrega una salida al pasillo alrededor de las 21:30.",
         "alias": "JIME",
         "equipo": "Equipo 1",
         "presente": "Sí",
@@ -178,6 +182,7 @@ SUJETOS = [
     },
     {
         "num": "05",
+        "cambio": "Sin cambios de fondo. Amplía la negativa a pronunciarse.",
         "alias": "DALEEK",
         "equipo": "Equipo 1",
         "presente": "No — videollamada desde el exterior",
@@ -200,6 +205,7 @@ SUJETOS = [
     },
     {
         "num": "06",
+        "cambio": "Retira la coartada anterior. Declara una salida de 15 min y su motivo real.",
         "alias": "NACHO",
         "equipo": "Equipo 2",
         "presente": "Sí",
@@ -226,6 +232,7 @@ SUJETOS = [
     },
     {
         "num": "07",
+        "cambio": "Sostiene la versión inicial pese a que el Sujeto n.º 06 la retiró.",
         "alias": "MARIELA",
         "equipo": "Equipo 3",
         "presente": "Sí",
@@ -248,6 +255,7 @@ SUJETOS = [
     },
     {
         "num": "08",
+        "cambio": "Agrega su rol en la preparación del pastillero semanal.",
         "alias": "NANA",
         "equipo": "Equipo 2",
         "presente": "Sí",
@@ -275,6 +283,7 @@ SUJETOS = [
     },
     {
         "num": "09",
+        "cambio": "Agrega valoración clínica sobre la magnitud de la dosis.",
         "alias": "FABI",
         "equipo": "Equipo 3",
         "presente": "Sí",
@@ -302,6 +311,7 @@ SUJETOS = [
     },
     {
         "num": "10",
+        "cambio": "Agrega el avistamiento de dos personas en el parqueo a las 21:20.",
         "alias": "DEYLER",
         "equipo": "Equipo 3",
         "presente": "Sí",
@@ -333,6 +343,7 @@ SUJETOS = [
 EVIDENCIAS = [
     {
         "letra": "A",
+        "modo": "marco",
         "titulo": "INFORME DE TOXICOLOGÍA",
         "nota": (
             "Concentración compatible con una dosis del orden de ocho veces la "
@@ -343,6 +354,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "B",
+        "modo": "sangre",
         "titulo": "FOTOGRAFÍA — PARQUEO, 21:22",
         "nota": (
             "Tomada desde el patio hacia el parqueo. Dos figuras junto al vehículo "
@@ -352,6 +364,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "C",
+        "modo": "sangre",
         "titulo": "FOTOGRAFÍA — BRINDIS, 21:51",
         "nota": (
             "Momento exacto de la entrega del vaso al occiso. El rostro de quien lo "
@@ -361,6 +374,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "D",
+        "modo": "marco",
         "titulo": "CONTROL DE ACCESO — CASETA TERUMA",
         "nota": (
             "Ningún ingreso externo en toda la velada. El único movimiento "
@@ -370,6 +384,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "E",
+        "modo": "sangre",
         "titulo": "PASTILLERO Y CAJA DE REPUESTO",
         "nota": (
             "El pastillero semanal fue hallado completo: las siete casillas "
@@ -379,6 +394,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "F",
+        "modo": "sangre",
         "titulo": "LIBRETA DE PRÉSTAMOS",
         "nota": (
             "Fotografiada por el propio occiso tres semanas antes del hecho. "
@@ -388,6 +404,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "G",
+        "modo": "marco",
         "titulo": "MENSAJE DE LAS 20:05",
         "nota": (
             "Último mensaje enviado por el occiso. Tres palabras, sin contexto y "
@@ -396,6 +413,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "H",
+        "modo": "marco",
         "titulo": "TRANSCRIPCIÓN DE AUDIO",
         "nota": (
             "Fragmento capturado de fondo en una videollamada, entre 21:19 y 21:24. "
@@ -405,6 +423,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "I",
+        "modo": "nativa",
         "titulo": "ACTA DE DECLARACIONES CRUZADAS",
         "nota": (
             "Comparación literal de las dos tomas de declaración de los diez "
@@ -414,6 +433,7 @@ EVIDENCIAS = [
     },
     {
         "letra": "J",
+        "modo": "sangre",
         "titulo": "PERSONA DE INTERÉS EXTERNA",
         "nota": (
             "Corredor de apuestas al que el occiso mantenía deuda vigente. Fue "

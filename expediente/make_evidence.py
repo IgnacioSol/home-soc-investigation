@@ -10,6 +10,7 @@ envejecido común los hace `evidencia_lib.guardar`, para que las diez piezas
 compartan exactamente la misma piel.
 """
 
+import math
 import os
 import random
 import sys
@@ -469,10 +470,736 @@ def ev_J():
     return img
 
 
+# ─── Formularios impresos ────────────────────────────────────────────────────
+
+
+def _formulario(ancho, alto, entidad, titulo, referencia, semilla=17):
+    """Hoja membretada con cabecera institucional. Base de A, D y H."""
+    img = ev.papel(ancho, alto, color=(236, 231, 217),
+                   fibras=ancho * alto // 260, semilla=semilla)
+    draw = ImageDraw.Draw(img)
+
+    draw.rectangle([0, 0, ancho - 1, 96], fill=(32, 30, 26, 255))
+    draw.text((38, 24), entidad, font=fuente("monob", 24),
+              fill=(232, 226, 210, 255))
+    draw.text((38, 58), titulo, font=fuente("mono", 18), fill=(158, 148, 128, 255))
+
+    fnt = fuente("mono", 17)
+    ancho_ref = medir(draw, referencia, fnt)[0]
+    draw.text((ancho - 38 - ancho_ref, 60), referencia, font=fnt,
+              fill=(158, 148, 128, 255))
+
+    draw.line([0, 100, ancho, 100], fill=RED + (255,), width=5)
+    draw.rectangle([0, 0, ancho - 1, alto - 1], outline=(150, 140, 120, 255),
+                   width=2)
+    return img
+
+
+def _tabla(draw, x, y, columnas, filas, ancho_total, alto_fila=34,
+           tam=16, destacar=()):
+    """
+    Tabla con cabecera oscura. `columnas` es [(titulo, peso), ...].
+
+    Devuelve la y siguiente al último renglón.
+    """
+    pesos = [c[1] for c in columnas]
+    total = sum(pesos)
+    anchos = [ancho_total * p / total for p in pesos]
+
+    draw.rectangle([x, y, x + ancho_total, y + alto_fila], fill=(58, 54, 46, 255))
+    cx = x
+    for (titulo, _), ancho_col in zip(columnas, anchos):
+        draw.text((cx + 10, y + alto_fila / 2 - tam * 0.62), titulo,
+                  font=fuente("monob", tam - 1), fill=(228, 222, 206, 255))
+        cx += ancho_col
+    y += alto_fila
+
+    for i, fila in enumerate(filas):
+        fondo = (222, 215, 197, 255) if i % 2 else (233, 228, 213, 255)
+        if i in destacar:
+            fondo = (232, 205, 197, 255)
+        draw.rectangle([x, y, x + ancho_total, y + alto_fila], fill=fondo)
+        draw.line([x, y + alto_fila, x + ancho_total, y + alto_fila],
+                  fill=(186, 176, 154, 255), width=1)
+        cx = x
+        for valor, ancho_col in zip(fila, anchos):
+            color = RED if i in destacar else INK
+            estilo = "monob" if i in destacar else "mono"
+            draw.text((cx + 10, y + alto_fila / 2 - tam * 0.62), str(valor),
+                      font=fuente(estilo, tam), fill=color + (255,))
+            cx += ancho_col
+        y += alto_fila
+
+    draw.rectangle([x, y - alto_fila * len(filas) - alto_fila, x + ancho_total, y],
+                   outline=(120, 110, 92, 255), width=2)
+    return y
+
+
+def _firma(img, xy, ancho=300, alto=64, color=(38, 52, 96), semilla=44):
+    """
+    Rúbrica manuscrita.
+
+    Escribir el nombre tachado con bloques negros queda raro en una firma; una
+    rúbrica ilegible comunica lo mismo y se ve como una firma de verdad.
+    """
+    rnd = random.Random(semilla)
+    capa = Image.new("RGBA", (ancho, alto), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(capa)
+
+    # Trazo inicial alto, como la mayúscula con la que arranca una firma.
+    inicial = [(10 + t * 46, alto * 0.92 - t * alto * 0.80 + math.sin(t * 3) * 9)
+               for t in [i / 11 for i in range(12)]]
+    draw.line(inicial, fill=color + (240,), width=5, joint="curve")
+
+    puntos = []
+    for i in range(52):
+        t = i / 51
+        x = 54 + t * (ancho - 66)
+        # Amplitud decreciente: las firmas empiezan grandes y se apagan.
+        amplitud = alto * 0.34 * (1 - 0.45 * t)
+        # El armónico rápido rompe la onda regular: sin él parece un
+        # electrocardiograma y no una firma.
+        onda = (math.sin(t * 15 + 0.6) * amplitud
+                + math.sin(t * 41 + 2.1) * amplitud * 0.30)
+        deriva = math.sin(t * 3.1 + 1.2) * (alto * 0.14)
+        puntos.append((x, alto * 0.50 + onda + deriva + rnd.uniform(-1.5, 1.5)))
+    draw.line(puntos, fill=color + (240,), width=4, joint="curve")
+
+    # Trazo de cierre, el subrayado que casi todo el mundo le pone a su firma.
+    draw.line([(ancho * 0.12, alto * 0.86), (ancho * 0.88, alto * 0.74)],
+              fill=color + (215,), width=3)
+    img.alpha_composite(capa, (int(xy[0]), int(xy[1])))
+
+
+def _cromatograma(ancho, alto, pico_principal=0.42):
+    """
+    Traza cromatográfica con un pico dominante.
+
+    Es lo que convierte el informe de toxicología en algo que parece salido de
+    un laboratorio y no de una plantilla de texto.
+    """
+    img = Image.new("RGBA", (ancho, alto), (246, 243, 233, 255))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([0, 0, ancho - 1, alto - 1], outline=(150, 140, 120, 255),
+                   width=2)
+
+    base_y = alto - 34
+    draw.line([44, base_y, ancho - 20, base_y], fill=(120, 112, 96, 255), width=2)
+    draw.line([44, 18, 44, base_y], fill=(120, 112, 96, 255), width=2)
+
+    rnd = random.Random(88)
+    # (posición relativa, altura relativa, ancho del pico)
+    picos = [(0.10, 0.11, 0.016), (0.19, 0.07, 0.013), (0.28, 0.16, 0.018),
+             (pico_principal, 0.94, 0.022), (0.55, 0.09, 0.014),
+             (0.68, 0.13, 0.016), (0.81, 0.06, 0.012), (0.90, 0.10, 0.015)]
+
+    puntos = []
+    for i in range(ancho - 64):
+        t = i / (ancho - 64)
+        valor = sum(a * math.exp(-((t - p) ** 2) / (2 * w ** 2))
+                    for p, a, w in picos)
+        valor += rnd.uniform(-0.006, 0.006)
+        puntos.append((44 + i, base_y - valor * (base_y - 30)))
+    draw.line(puntos, fill=(58, 54, 46, 255), width=2)
+
+    # El pico que importa, marcado.
+    x_pico = 44 + pico_principal * (ancho - 64)
+    draw.line([x_pico, 34, x_pico, base_y], fill=RED + (140,), width=2)
+    draw.text((x_pico + 10, 30), "9,4 ng/mL", font=fuente("monob", 16),
+              fill=RED + (255,))
+    draw.text((x_pico + 10, 52), "glucósido cardíaco", font=fuente("mono", 13),
+              fill=RED + (255,))
+
+    draw.text((50, base_y + 10), "tiempo de retención (min)",
+              font=fuente("mono", 12), fill=SOFT + (255,))
+    return img
+
+
+def _conclusion(draw, x, y, ancho, titulo, texto, alto=None, tam=17):
+    """Caja de conclusión enmarcada en rojo. Devuelve la y siguiente."""
+    fnt = fuente("mono", tam)
+    lineas = ev.partir(draw, texto, fnt, ancho - 32)
+    alto = alto or (44 + len(lineas) * (tam + 8) + 16)
+    draw.rectangle([x, y, x + ancho, y + alto], fill=(238, 232, 218, 255),
+                   outline=RED + (255,), width=4)
+    draw.text((x + 16, y + 14), titulo, font=fuente("monob", tam),
+              fill=RED + (255,))
+    yy = y + 48
+    for linea in lineas:
+        draw.text((x + 16, yy), linea, font=fnt, fill=INK + (255,))
+        yy += tam + 8
+    return y + alto
+
+
+# ─── EVIDENCIA A — Informe de toxicología ────────────────────────────────────
+
+
+def ev_A():
+    ancho, alto = 1120, 1330
+    img = _formulario(ancho, alto, "LABORATORIO DE CIENCIAS FORENSES",
+                      "SECCIÓN DE TOXICOLOGÍA ANALÍTICA",
+                      "INFORME TOX-2211/26", semilla=17)
+    draw = ImageDraw.Draw(img)
+    margen = 44
+    util = ancho - 2 * margen
+
+    y = 132
+    for etiqueta, valor in (
+        ("EXPEDIENTE:", "002 — muerte de adulto mayor, 74 años"),
+        ("MUESTRA:", "Sangre periférica y humor vítreo"),
+        ("TOMA:", "12 de julio, 04:10 — hospital"),
+        ("RECEPCIÓN:", "13 de julio  ·  INFORME: 21 de julio"),
+    ):
+        draw.text((margen, y), etiqueta, font=fuente("monob", 17),
+                  fill=SOFT + (255,))
+        draw.text((margen + 200, y), valor, font=fuente("mono", 17),
+                  fill=INK + (255,))
+        y += 30
+
+    y += 22
+    draw.text((margen, y), "RESULTADOS CUANTITATIVOS", font=fuente("monob", 19),
+              fill=INK + (255,))
+    y += 32
+
+    y = _tabla(
+        draw, margen, y,
+        [("SUSTANCIA", 46), ("HALLADO", 18), ("REFERENCIA", 22), ("VALOR", 14)],
+        [
+            ("Etanol", "0,4 g/L", "—", "bajo"),
+            ("Glucósido cardíaco (digitálico)", "9,4 ng/mL", "0,5 – 2,0 ng/mL",
+             "×  8"),
+            ("Antihipertensivo habitual", "en rango", "terapéutico", "normal"),
+            ("Cribado de otras sustancias", "negativo", "—", "—"),
+        ],
+        util, destacar=(1,),
+    )
+
+    y += 30
+    y = _conclusion(
+        draw, margen, y, util, "VENTANA DE INGESTA ESTIMADA",
+        "Entre las 21:30 y las 22:15 del sábado 11 de julio. La estimación se "
+        "apoya en la curva de absorción y en la hora del colapso presenciado "
+        "(22:40). La toma habitual de las 21:00, presenciada por varios "
+        "asistentes, queda fuera de la ventana y no explica la concentración.",
+    )
+
+    y += 24
+    y = _conclusion(
+        draw, margen, y, util, "OBSERVACIÓN DEL PERITO",
+        "La concentración hallada no es compatible con un error de dosificación "
+        "ni con una toma doble accidental. Corresponde a una cantidad muy "
+        "superior a la de cualquier presentación individual del tratamiento.",
+    )
+
+    y += 34
+    draw.text((margen, y), "PERFIL CROMATOGRÁFICO", font=fuente("monob", 19),
+              fill=INK + (255,))
+    y += 30
+    img.alpha_composite(_cromatograma(util, 260), (margen, y))
+
+    draw.text((margen, alto - 148), "PERITO RESPONSABLE", font=fuente("monob", 15),
+              fill=SOFT + (255,))
+    _firma(img, (margen + 20, alto - 138), ancho=320, alto=62)
+    draw.line([margen, alto - 74, margen + 380, alto - 74],
+              fill=(120, 110, 92, 255), width=2)
+    ev.sello(img, (ancho - 250, alto - 128), "VERIFICADO", angulo=-9, tam=36)
+    return img
+
+
+# ─── EVIDENCIA D — Control de acceso del condominio ──────────────────────────
+
+
+def ev_D():
+    ancho, alto = 1120, 1010
+    img = _formulario(ancho, alto, "CONDOMINIO TERUMA",
+                      "CASETA DE SEGURIDAD — BITÁCORA DE ACCESO",
+                      "SÁBADO 11 DE JULIO", semilla=23)
+    draw = ImageDraw.Draw(img)
+    margen = 44
+    util = ancho - 2 * margen
+
+    y = 136
+    draw.text((margen, y), "MOVIMIENTOS REGISTRADOS  ·  18:00 – 00:00",
+              font=fuente("monob", 19), fill=INK + (255,))
+    y += 34
+
+    filas = [
+        ("18:12", "INGRESO", "Vehicular", "Residente filial 14", "—"),
+        ("18:40", "INGRESO", "Vehicular", "Residente filial 14", "—"),
+        ("19:05", "INGRESO", "Vehicular", "Visita autorizada", "filial 14"),
+        ("19:22", "INGRESO", "Vehicular", "Visita autorizada", "filial 14"),
+        ("19:38", "INGRESO", "Peatonal", "Adulto mayor — a pie", "filial 14"),
+        ("19:44", "INGRESO", "Vehicular", "Visita autorizada", "filial 14"),
+        ("20:16", "INGRESO", "Vehicular", "Visita autorizada", "filial 14"),
+        ("21:35", "SALIDA", "Peatonal", "Visita — filial 14", "sin vehículo"),
+        ("21:50", "INGRESO", "Peatonal", "Visita — filial 14", "reingreso"),
+        ("22:55", "INGRESO", "Vehicular", "AMBULANCIA", "emergencia"),
+        ("23:10", "SALIDA", "Vehicular", "AMBULANCIA", "traslado"),
+    ]
+    y = _tabla(
+        draw, margen, y,
+        [("HORA", 12), ("TIPO", 16), ("MODO", 16), ("REGISTRO", 38),
+         ("OBS.", 18)],
+        filas, util, alto_fila=32, tam=15, destacar=(7, 8),
+    )
+
+    y += 28
+    y = _conclusion(
+        draw, margen, y, util, "CERTIFICACIÓN DE LA CASETA",
+        "No se registra el ingreso de ninguna persona ajena al listado de "
+        "residentes y visitas autorizadas de la filial 14 entre las 18:00 y las "
+        "22:55. El portón peatonal y el vehicular cuentan con registro "
+        "independiente y ambos coinciden.",
+    )
+
+    y += 22
+    ev.manuscrito(img, (margen + 8, y + 6),
+                  "los dos movimientos peatonales de las 21:35 y 21:50 "
+                  "corresponden a la misma persona",
+                  tam=27, fill=(196, 62, 50), semilla=31, ancho_max=util - 20)
+
+    ev.sello(img, (ancho - 236, alto - 92), "SIN INGRESO", sub="EXTERNO",
+             angulo=-8, tam=32, tam_sub=18)
+    return img
+
+
+# ─── EVIDENCIA F — Libreta de préstamos ──────────────────────────────────────
+
+# Las cuotas están puestas para que la suma dé una cifra redonda: es la
+# respuesta de la pregunta bonus B2 y tiene que poder verificarse a mano.
+CUOTAS = [
+    ("14/07/24", "250 000"),
+    ("22/09/24", "400 000"),
+    ("03/12/24", "180 000"),
+    ("18/02/25", "750 000"),
+    ("29/04/25", "320 000"),
+    ("11/07/25", "1 200 000"),
+    ("06/10/25", "560 000"),
+    ("30/01/26", "900 000"),
+    ("19/05/26", "300 000"),
+]
+
+
+def ev_F():
+    """Foto de celular de una libreta manuscrita, tomada por el propio occiso."""
+    ancho = 1000
+    alto = round(ancho * RATIO_PAGINA)
+    img = _mesa(ancho, alto, tono=(78, 72, 62))
+
+    # La hoja de libreta, ligeramente rotada como en una foto de mano.
+    hoja_a, hoja_h = 800, 1010
+    hoja = ev.papel(hoja_a, hoja_h, color=(238, 233, 214), fibras=2400, semilla=61)
+    hd = ImageDraw.Draw(hoja)
+
+    for y in range(96, hoja_h - 30, 46):
+        hd.line([54, y, hoja_a - 40, y], fill=(168, 178, 196, 255), width=2)
+    hd.line([96, 40, 96, hoja_h - 30], fill=(206, 148, 140, 255), width=2)
+    for y in range(46, hoja_h - 20, 42):
+        hd.ellipse([16, y, 34, y + 18], fill=(96, 90, 78, 255))
+
+    ev.manuscrito(hoja, (120, 56), "M.  —  cuentas", tam=40, fill=(34, 42, 78),
+                  semilla=5)
+    ev.manuscrito(hoja, (500, 62), "«queda debiendo»", tam=26,
+                  fill=(34, 42, 78), semilla=9)
+
+    y = 148
+    for fecha, monto in CUOTAS:
+        ev.manuscrito(hoja, (120, y), fecha, tam=30, fill=(34, 42, 78),
+                      semilla=hash(fecha) % 500)
+        ev.manuscrito(hoja, (430, y), monto, tam=30, fill=(34, 42, 78),
+                      semilla=hash(monto) % 500)
+        y += 46
+
+    hd.line([120, y + 8, hoja_a - 60, y + 8], fill=(34, 42, 78, 255), width=3)
+    ev.manuscrito(hoja, (120, y + 26), "total", tam=34, fill=(34, 42, 78),
+                  semilla=77)
+    hd.line([250, y + 66, 660, y + 66], fill=(34, 42, 78, 255), width=2)
+
+    ev.pegar_rotado(img, hoja, (ancho / 2, alto / 2 + 56), -1.8)
+
+    # Marca de que es una foto tomada con teléfono, no un escaneo.
+    draw = ImageDraw.Draw(img)
+    draw.text((44, 112), "ARCHIVO DE IMAGEN — CÁMARA DEL OCCISO",
+              font=fuente("mono", 20), fill=(206, 198, 180, 255))
+    draw.text((44, 142), "capturada 19/06/26 · 3 semanas antes del hecho",
+              font=fuente("mono", 17), fill=(168, 158, 138, 255))
+    return img
+
+
+# ─── EVIDENCIA G — Mensaje de las 20:05 ──────────────────────────────────────
+
+
+def _burbuja_chat(draw, x, y, ancho, texto, hora, propia=False, autor=""):
+    """Burbuja de mensajería en modo oscuro. Devuelve la y siguiente."""
+    fnt = fuente("sans", 21)
+    lineas = ev.partir(draw, texto, fnt, ancho - 40)
+    # +22 al final: sin ese aire la hora se monta sobre el último renglón.
+    alto = 30 + len(lineas) * 29 + 22 + (26 if autor else 0)
+    color = (46, 74, 60, 255) if propia else (48, 48, 52, 255)
+    draw.rounded_rectangle([x, y, x + ancho, y + alto], radius=16, fill=color)
+
+    yy = y + 14
+    if autor:
+        draw.text((x + 20, yy), autor, font=fuente("sansb", 18),
+                  fill=(122, 176, 214, 255))
+        yy += 26
+    for linea in lineas:
+        draw.text((x + 20, yy), linea, font=fnt, fill=(232, 230, 226, 255))
+        yy += 29
+    ancho_h = medir(draw, hora, fuente("sans", 15))[0]
+    draw.text((x + ancho - 16 - ancho_h, y + alto - 22), hora,
+              font=fuente("sans", 15), fill=(150, 150, 152, 255))
+    return y + alto + 16
+
+
+def ev_G():
+    ancho, alto = 900, 1120
+    img = Image.new("RGBA", (ancho, alto), (24, 24, 26, 255))
+    draw = ImageDraw.Draw(img)
+
+    # Cabecera de la aplicación.
+    draw.rectangle([0, 0, ancho, 116], fill=(38, 38, 42, 255))
+    draw.ellipse([28, 30, 84, 86], fill=(86, 92, 104, 255))
+    draw.text((104, 38), "FAMILIA", font=fuente("sansb", 26),
+              fill=(238, 236, 232, 255))
+    draw.text((104, 72), "14 participantes", font=fuente("sans", 17),
+              fill=(150, 150, 152, 255))
+    draw.text((ancho - 120, 48), "· · ·", font=fuente("sansb", 26),
+              fill=(150, 150, 152, 255))
+
+    draw.rounded_rectangle([ancho / 2 - 110, 140, ancho / 2 + 110, 178],
+                           radius=14, fill=(44, 44, 48, 255))
+    draw.text((ancho / 2 - 78, 148), "SÁBADO 11 JUL", font=fuente("sans", 17),
+              fill=(160, 160, 162, 255))
+
+    y = 206
+    y = _burbuja_chat(draw, 40, y, 560,
+                      "Ya vamos saliendo, llevamos el hielo", "19:12",
+                      autor="████████")
+    y = _burbuja_chat(draw, 300, y, 560,
+                      "Perfecto, aquí ya está todo listo", "19:20", propia=True)
+    y = _burbuja_chat(draw, 40, y, 560,
+                      "Abuelo ya va llegando caminando, lo vi en la entrada",
+                      "19:36", autor="████")
+    y = _burbuja_chat(draw, 40, y, 600,
+                      "Alguien me explica por qué hay que esperar hasta el "
+                      "brindis para todo en esta familia", "19:58",
+                      autor="██████")
+
+    # El mensaje que importa. El aire extra es para que la etiqueta roja del
+    # recuadro, que se dibuja por encima, no caiga sobre la burbuja anterior.
+    y += 26
+    y_clave = y
+    y = _burbuja_chat(draw, 40, y, 520, "hoy lo digo", "20:05",
+                      autor="ABUELO")
+    ev.recuadro_rojo(img, (28, y_clave - 10, 572, y - 6), "SIN RESPUESTAS")
+
+    y += 26
+    y = _burbuja_chat(draw, 40, y, 600,
+                      "Ya casi servimos, vengan todos a la mesa", "21:44",
+                      autor="████")
+    y = _burbuja_chat(draw, 300, y, 560, "LLAMEN UNA AMBULANCIA", "22:41",
+                      propia=True)
+
+    draw.rectangle([0, alto - 96, ancho, alto], fill=(38, 38, 42, 255))
+    draw.rounded_rectangle([28, alto - 76, ancho - 120, alto - 20], radius=28,
+                           fill=(52, 52, 56, 255))
+    draw.text((52, alto - 62), "Mensaje", font=fuente("sans", 20),
+              fill=(120, 120, 124, 255))
+    return img
+
+
+# ─── EVIDENCIA H — Transcripción de audio ────────────────────────────────────
+
+
+def ev_H():
+    ancho, alto = 1120, 960
+    img = _formulario(ancho, alto, "UNIDAD DE ANÁLISIS DE AUDIO",
+                      "TRANSCRIPCIÓN DE REGISTRO INCIDENTAL",
+                      "PISTA 07 — 21:19 a 21:24", semilla=29)
+    draw = ImageDraw.Draw(img)
+    margen = 44
+    util = ancho - 2 * margen
+
+    y = 132
+    for etiqueta, valor in (
+        ("ORIGEN:", "Audio de fondo de una videollamada — Sujeto n.º 04"),
+        ("CAPTURA:", "No intencional. La cámara apuntaba al interior."),
+        ("CALIDAD:", "Baja. Se recupera cerca del 20 % del intercambio."),
+        ("VOCES:", "Dos. Ningún hablante se identifica por su nombre."),
+    ):
+        draw.text((margen, y), etiqueta, font=fuente("monob", 17),
+                  fill=SOFT + (255,))
+        draw.text((margen + 168, y), valor, font=fuente("mono", 16),
+                  fill=INK + (255,))
+        y += 30
+
+    y += 20
+    draw.text((margen, y), "TRANSCRIPCIÓN LITERAL", font=fuente("monob", 19),
+              fill=INK + (255,))
+    y += 34
+
+    fragmentos = [
+        ("21:19:48", "VOZ A", "[ininteligible] ...dos años. Dos años, ██████."),
+        ("21:20:15", "VOZ B", "[ininteligible]"),
+        ("21:20:31", "VOZ A", "...no me interesa cómo lo arreglemos ahora..."),
+        ("21:21:02", "VOZ B", "...bajá la voz, te van a [ininteligible]..."),
+        ("21:21:40", "VOZ A", "...hoy en el brindis lo digo. Delante de todos."),
+        ("21:22:09", "VOZ B", "[ininteligible] ...eso me arruina, ██████..."),
+        ("21:22:55", "VOZ A", "[ininteligible]"),
+        ("21:23:30", "—", "Ruido de puerta. Fin del registro útil."),
+    ]
+    for hora, voz, texto in fragmentos:
+        clave = "lo digo" in texto or "arruina" in texto
+        draw.rectangle([margen, y, margen + util, y + 52],
+                       fill=(232, 205, 197, 255) if clave else (232, 227, 212, 255))
+        draw.line([margen, y + 52, margen + util, y + 52],
+                  fill=(190, 180, 158, 255), width=1)
+        draw.text((margen + 12, y + 8), hora, font=fuente("mono", 15),
+                  fill=SOFT + (255,))
+        draw.text((margen + 12, y + 28), voz, font=fuente("monob", 15),
+                  fill=(RED if clave else INK) + (255,))
+        draw.text((margen + 130, y + 16), texto,
+                  font=fuente("monoi" if not clave else "monob", 17),
+                  fill=(RED if clave else INK) + (255,))
+        y += 52
+
+    draw.rectangle([margen, y - 52 * len(fragmentos), margen + util, y],
+                   outline=(120, 110, 92, 255), width=2)
+
+    y += 28
+    _conclusion(
+        draw, margen, y, util, "NOTA DEL ANALISTA",
+        "La VOZ A presenta rasgos compatibles con los de un hablante de edad "
+        "avanzada. La VOZ B es masculina y no se identifica. El registro "
+        "confirma que hubo un intercambio en el exterior dentro del intervalo "
+        "señalado, pero no permite atribuirlo a ninguna persona concreta.",
+    )
+    return img
+
+
+# ─── Fotografías del carrete ─────────────────────────────────────────────────
+
+
+def _grano_fotografico(img, sigma=9.0, semilla=5):
+    """
+    Ruido de sensor de poca luz.
+
+    Es mucho más fuerte que el envejecido general de las evidencias: una foto
+    de celular tomada de noche tiene grano visible, y ese grano es justamente
+    lo que justifica que no se distingan las caras.
+    """
+    arr = np.array(img.convert("RGB")).astype(np.float32)
+    rnd = np.random.default_rng(semilla)
+    # El ruido crece en las sombras, como en un sensor real.
+    luminancia = arr.mean(axis=2, keepdims=True) / 255.0
+    arr += rnd.normal(0, 1, arr.shape) * sigma * (1.6 - luminancia)
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8)).convert("RGBA")
+
+
+def _marca_horaria(img, texto, esquina=(None, None)):
+    """Marca de fecha y hora de la cámara, en el ámbar de siempre."""
+    draw = ImageDraw.Draw(img)
+    fnt = fuente("mono", 30)
+    ancho_txt, alto_txt = medir(draw, texto, fnt)
+    x = esquina[0] if esquina[0] is not None else img.width - 40 - ancho_txt
+    y = esquina[1] if esquina[1] is not None else img.height - 150
+    # Sombra dura: así se imprimían las marcas de las cámaras.
+    draw.text((x + 2, y + 2), texto, font=fnt, fill=(20, 16, 8, 200))
+    draw.text((x, y), texto, font=fnt, fill=(232, 186, 62, 255))
+
+
+def _ampliacion(img, origen, destino, etiqueta):
+    """
+    Recorta una zona de la propia foto y la pega ampliada con marco rojo.
+
+    Usa los píxeles reales, no un dibujo aparte: es lo que hace creíble que la
+    ampliación salga de esa toma y no de otra.
+    """
+    recorte = img.crop(tuple(int(v) for v in origen))
+    ancho_d = int(destino[2] - destino[0])
+    alto_d = int(destino[3] - destino[1])
+    recorte = recorte.resize((ancho_d, alto_d), Image.LANCZOS)
+    recorte = recorte.filter(ImageFilter.UnsharpMask(radius=3, percent=140,
+                                                     threshold=2))
+    img.alpha_composite(recorte.convert("RGBA"),
+                        (int(destino[0]), int(destino[1])))
+
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(list(destino), outline=RED + (255,), width=5)
+    draw.rectangle(list(origen), outline=RED + (255,), width=4)
+    # Línea que une el origen con la ampliación.
+    draw.line([origen[2], origen[1], destino[0], destino[3]],
+              fill=RED + (180,), width=3)
+
+    fnt = fuente("monob", 22)
+    ancho_txt = medir(draw, etiqueta, fnt)[0]
+    draw.rectangle([destino[0], destino[1] - 34, destino[0] + ancho_txt + 20,
+                    destino[1]], fill=RED + (255,))
+    draw.text((destino[0] + 10, destino[1] - 30), etiqueta, font=fnt,
+              fill=(246, 240, 228, 255))
+
+
+def _capa_difusa(tamano, pintar, desenfoque):
+    """
+    Dibuja en una capa aparte y la difumina antes de componerla.
+
+    Es la única forma de que unas primitivas pasen por fotografía: con el
+    contorno nítido se leen como dibujo. La forma tiene que perderse.
+    """
+    capa = Image.new("RGBA", tamano, (0, 0, 0, 0))
+    pintar(ImageDraw.Draw(capa))
+    return capa.filter(ImageFilter.GaussianBlur(desenfoque))
+
+
+def ev_B():
+    """
+    Parqueo, 21:22. Dos figuras junto al vehículo.
+
+    La toma es deliberadamente mala: de noche, a contraluz y desde lejos. Lo
+    único que la imagen sostiene es que había dos personas y que una vestía
+    algo claro. Cualquier cosa más definida sería una evidencia que el caso no
+    tiene — y delataría al culpable demasiado pronto.
+    """
+    ancho = 1000
+    alto = round(ancho * RATIO_PAGINA)
+
+    # Cielo nocturno y suelo, con una farola cálida al fondo.
+    ys = np.linspace(0, 1, alto)[:, None]
+    xs = np.linspace(0, 1, ancho)[None, :]
+    cielo = np.clip(14 + 20 * (1 - ys), 0, 255)
+    suelo = np.where(ys > 0.64, 22 + 12 * (ys - 0.64), 0)
+    farola = 62 * np.exp(-(((xs - 0.82) ** 2) / 0.008 + ((ys - 0.26) ** 2) / 0.012))
+
+    r = cielo + suelo + farola * 1.34
+    g = cielo * 0.97 + suelo + farola * 1.02
+    b = cielo * 1.22 + suelo * 1.06 + farola * 0.50
+    base = np.clip(np.dstack([r, g, b]) * np.ones((alto, ancho, 3)), 0, 255)
+    img = Image.fromarray(base.astype(np.uint8), "RGB").convert("RGBA")
+
+    # El vehículo: una masa oscura y poco más. De noche un carro es eso.
+    def coche(dr):
+        dr.polygon([(150, 790), (200, 706), (330, 662), (560, 656), (700, 696),
+                    (792, 748), (808, 806), (786, 848), (172, 852), (146, 818)],
+                   fill=(21, 22, 26, 255))
+        dr.line([(200, 706), (330, 662), (560, 656), (700, 696)],
+                fill=(120, 128, 142, 215), width=6)   # brillo del techo
+        dr.polygon([(306, 670), (536, 666), (606, 704), (292, 708)],
+                   fill=(44, 50, 62, 210))            # parabrisas
+        dr.ellipse([740, 746, 796, 780], fill=(188, 74, 52, 235))  # piloto
+    img.alpha_composite(_capa_difusa((ancho, alto), coche, 7))
+
+    # Las dos figuras, como manchas. Sin cabeza recortada ni torso geométrico:
+    # a esa distancia y con esa luz una persona es un borrón vertical.
+    def figuras(dr):
+        # Izquierda, ropa oscura: apenas se despega del fondo.
+        dr.ellipse([392, 508, 476, 604], fill=(34, 33, 36, 255))
+        dr.ellipse([374, 576, 496, 812], fill=(30, 29, 33, 255))
+        # Derecha, ropa clara: es lo único que la foto realmente aporta.
+        dr.ellipse([520, 504, 600, 596], fill=(50, 48, 50, 255))
+        dr.ellipse([502, 570, 618, 806], fill=(96, 96, 98, 255))
+        dr.ellipse([524, 600, 604, 742], fill=(114, 113, 112, 255))
+    img.alpha_composite(_capa_difusa((ancho, alto), figuras, 13))
+
+    img = img.filter(ImageFilter.GaussianBlur(3.2))
+    img = _grano_fotografico(img, sigma=13.0, semilla=15)
+
+    _marca_horaria(img, "2026-07-11  21:22:14")
+    _ampliacion(img, (486, 486, 640, 700), (628, 226, 944, 666),
+                "AMPLIACIÓN — PRENDA CLARA")
+
+    draw = ImageDraw.Draw(img)
+    draw.text((44, 118), "CARRETE DEL SUJETO N.º 03 — TOMA 41 DE 62",
+              font=fuente("mono", 20), fill=(206, 198, 180, 255))
+    draw.text((44, 146), "sin rostros identificables",
+              font=fuente("mono", 17), fill=(168, 160, 144, 255))
+    return img
+
+
+def ev_C():
+    """Brindis, 21:51. La entrega del vaso. El rostro queda fuera de cuadro."""
+    ancho = 1000
+    alto = round(ancho * RATIO_PAGINA)
+
+    # Interior cálido, muy poca luz, con bokeh al fondo.
+    ys = np.linspace(0, 1, alto)[:, None]
+    xs = np.linspace(0, 1, ancho)[None, :]
+    calido = 44 + 70 * np.exp(-(((xs - 0.42) ** 2) / 0.10 + ((ys - 0.34) ** 2) / 0.13))
+    r = np.clip(calido * 1.32, 0, 255)
+    g = np.clip(calido * 1.02, 0, 255)
+    b = np.clip(calido * 0.66, 0, 255)
+    base = np.clip(np.dstack([r, g, b]) * np.ones((alto, ancho, 3)), 0, 255)
+    img = Image.fromarray(base.astype(np.uint8), "RGB").convert("RGBA")
+
+    # Luces desenfocadas del fondo.
+    bokeh = Image.new("RGBA", (ancho, alto), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(bokeh)
+    rnd = random.Random(19)
+    for _ in range(22):
+        cx, cy = rnd.uniform(60, ancho - 60), rnd.uniform(150, 700)
+        r_luz = rnd.uniform(24, 62)
+        bd.ellipse([cx - r_luz, cy - r_luz, cx + r_luz, cy + r_luz],
+                   fill=(238, 196, 122, rnd.randint(30, 70)))
+    img.alpha_composite(bokeh.filter(ImageFilter.GaussianBlur(22)))
+
+    # Los presentes, de espaldas y desenfocados: son el primer plano fuera de
+    # foco que encuadra la escena, no figuras que haya que distinguir.
+    def presentes(dr):
+        dr.rectangle([0, 880, ancho, alto], fill=(28, 20, 13, 255))
+        for cx, altura in ((110, 300), (880, 360)):
+            dr.ellipse([cx - 78, 880 - altura, cx + 78, 880 - altura + 168],
+                       fill=(22, 16, 11, 255))
+            dr.ellipse([cx - 118, 880 - altura + 108, cx + 118, 960],
+                       fill=(22, 16, 11, 255))
+    img.alpha_composite(_capa_difusa((ancho, alto), presentes, 16))
+
+    # El gesto que importa: el brazo entrando por la izquierda con el vaso.
+    def gesto(dr):
+        dr.polygon([(0, 430), (250, 470), (300, 530), (0, 570)],
+                   fill=(58, 44, 32, 255))                      # manga
+        dr.polygon([(250, 466), (334, 480), (356, 538), (296, 534)],
+                   fill=(146, 108, 78, 255))                    # antebrazo
+        dr.ellipse([236, 458, 288, 496], fill=(92, 88, 92, 255))    # reloj
+        dr.ellipse([243, 464, 281, 490], fill=(174, 172, 176, 255))
+        # La mano que lo recibe, del otro lado.
+        dr.polygon([(474, 506), (550, 490), (570, 546), (490, 562)],
+                   fill=(150, 116, 86, 255))
+    img.alpha_composite(_capa_difusa((ancho, alto), gesto, 5))
+
+    # El vaso va menos difuso: es lo único enfocado de la toma.
+    def vaso(dr):
+        dr.polygon([(352, 460), (434, 460), (422, 570), (364, 570)],
+                   fill=(206, 176, 120, 140))
+        dr.ellipse([350, 448, 436, 474], fill=(228, 204, 156, 160))
+        dr.line([(354, 462), (366, 566)], fill=(246, 232, 200, 200), width=4)
+    img.alpha_composite(_capa_difusa((ancho, alto), vaso, 2))
+
+    img = img.filter(ImageFilter.GaussianBlur(2.4))
+    img = _grano_fotografico(img, sigma=8.0, semilla=23)
+
+    _marca_horaria(img, "2026-07-11  21:51:07")
+    _ampliacion(img, (214, 436, 454, 586), (556, 700, 950, 946),
+                "AMPLIACIÓN — MANGA Y RELOJ")
+
+    draw = ImageDraw.Draw(img)
+    draw.text((44, 118), "CARRETE DEL SUJETO N.º 03 — TOMA 58 DE 62",
+              font=fuente("mono", 20), fill=(226, 214, 190, 255))
+    draw.text((44, 146), "el rostro de quien entrega el vaso queda fuera de cuadro",
+              font=fuente("mono", 17), fill=(198, 184, 158, 255))
+    return img
+
+
 # ─── Registro y CLI ──────────────────────────────────────────────────────────
 
 GENERADORES = {
+    "A": ev_A,
+    "B": ev_B,
+    "C": ev_C,
+    "D": ev_D,
     "E": ev_E,
+    "F": ev_F,
+    "G": ev_G,
+    "H": ev_H,
     "J": ev_J,
 }
 
