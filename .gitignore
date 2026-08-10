@@ -11,3 +11,8 @@ __pycache__/
 *.pyc
 .env
 docker/.env
+
+# Expediente — fotos de origen (privadas) y artefactos intermedios
+expediente/photos/
+expediente/photos_fbi/
+expediente/out/
