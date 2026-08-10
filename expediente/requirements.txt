@@ -1,4 +1,6 @@
 reportlab
 pillow
-opencv-python-headless
+# OpenCV 5 saco CascadeClassifier del build por defecto y el
+# pipeline de retratos usa cascadas Haar (manual §3).
+opencv-python-headless<5
 numpy
