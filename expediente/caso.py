@@ -579,7 +579,12 @@ SOLUCION = {
             "caso anterior — el pastillero está intacto. Nacho confiesa una "
             "escapada de quince minutos y vuelve justo para el brindis, y Mariela "
             "sostiene que nunca se movió: la contradicción más ruidosa del "
-            "expediente y los dos estaban tapando unos cigarros.",
+            "expediente y los dos estaban tapando unos cigarros.\n\n"
+            "La «M.» de la libreta: en la mesa va a apuntar a dos personas a la "
+            "vez, porque el nombre legal de Nana también empieza con M. La "
+            "libreta registra a quien PRESTABA, no a quien debía, y el resto de "
+            "las evidencias descarta a Nana. Si alguien acusa a Nana por la "
+            "libreta, esa es exactamente la trampa.",
         ),
     ],
 }
