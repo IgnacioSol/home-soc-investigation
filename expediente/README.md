@@ -22,6 +22,27 @@ manila. Parte de la gracia es repartir tres expedientes idénticos.
 
 ---
 
+## Antes: el expediente de práctica
+
+`EXPEDIENTE_000_DEMO.pdf` — **11 páginas**, caso inventado, cuatro sospechosos,
+sin una sola fotografía. Sirve para enseñarle la mecánica a la familia antes de
+sacar el caso de verdad.
+
+| | |
+|---|---|
+| Qué imprimir | páginas **1 – 10**, **una sola copia** (se juega entre todos) |
+| Para el anfitrión | página **11**, la respuesta |
+| Duración | 15 minutos |
+
+Se resuelve en voz alta, sin equipos y sin apuro. La página 2 es la que hace el
+trabajo: explica que cada sospechoso declaró dos veces y que lo que importa no
+es *quién* cambió su versión sino **hacia dónde** la cambió. Cuando entiendan
+esa tabla, ya saben jugar el caso grande.
+
+Se regenera con `python3 build_demo.py`.
+
+---
+
 ## Cómo se juega
 
 Diez personas, tres equipos, **75 – 90 minutos**.
