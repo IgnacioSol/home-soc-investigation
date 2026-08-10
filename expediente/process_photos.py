@@ -136,6 +136,28 @@ def detectar(bgr):
             continue
         unicos.append((x, y, w, h))
 
+    ojos = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
+
+    def cuenta_ojos(caja):
+        """
+        Ojos detectados en la mitad superior del candidato.
+
+        El filtro de piel por sí solo no basta: premia cualquier zona amplia de
+        piel, así que un escote o un brazo desnudo puntúan como cara y el
+        recorte sale en el torso. Los ojos son lo que distingue una cara de una
+        mancha de piel.
+        """
+        if ojos.empty():
+            return 0
+        x, y, w, h = caja
+        media = bgr[max(0, y):y + int(h * 0.62), max(0, x):x + w]
+        if media.size == 0:
+            return 0
+        gris_media = cv2.cvtColor(media, cv2.COLOR_BGR2GRAY)
+        return len(ojos.detectMultiScale(gris_media, scaleFactor=1.08,
+                                         minNeighbors=6,
+                                         minSize=(max(8, w // 12),) * 2))
+
     def puntuar(caja):
         x, y, w, h = caja
         recorte = bgr[max(0, y):y + h, max(0, x):x + w]
@@ -145,7 +167,8 @@ def detectar(bgr):
         altura = 1 - (y + h / 2) / alto
         score = 1.5 * tam_rel + 1.3 * centrado + 0.5 * altura + 2.2 * piel
         if piel < 0.12:
-            score -= 2.5
+            score -= 2.5       # descarta ventanas y estructuras del fondo
+        score += min(cuenta_ojos(caja), 2) * 1.5
         return score
 
     return max(unicos, key=puntuar)
@@ -170,6 +193,16 @@ def recortar(pil, caja):
     lado = min(lado, ancho, alto)
     izq = int(round(min(max(cx - lado / 2, 0), ancho - lado)))
     arr = int(round(min(max(cy - lado / 2, 0), alto - lado)))
+
+    if caja is not None:
+        # La caja de Haar suele empezar en la frente, así que el pelo queda por
+        # encima. Sin reservar ese aire, el desplazamiento hacia los hombros
+        # termina cortando la coronilla.
+        aire = 0.95 * caja[3]
+        tope_maximo = int(round(caja[1] - aire))
+        arr = min(arr, max(tope_maximo, 0))
+        arr = min(arr, int(alto - lado))
+
     lado = int(round(lado))
     return pil.crop((izq, arr, izq + lado, arr + lado)).resize(
         (LADO_SALIDA, LADO_SALIDA), Image.LANCZOS)

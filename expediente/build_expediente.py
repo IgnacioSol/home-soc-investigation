@@ -48,7 +48,8 @@ def retrato(c, alias, x, y, lado):
     fotografía pendiente en vez de fallar: así el expediente se puede componer
     y revisar antes de que lleguen los diez archivos.
     """
-    ruta = os.path.join(DIR_RETRATOS, f"{alias}.jpg")
+    # En disco los retratos van sin tilde; FÍO es el único alias que la lleva.
+    ruta = os.path.join(DIR_RETRATOS, f"{alias.replace('Í', 'I')}.jpg")
 
     c.setStrokeColor(FRAME)
     c.setLineWidth(2.2)
@@ -722,7 +723,8 @@ def _rejilla_caras(c, y_tope, alto_disponible):
 
         x_foto = cx - lado_foto / 2
         y_foto = tope - lado_foto - 4
-        ruta = os.path.join(DIR_RETRATOS, f"{sujeto['alias'].replace('Í', 'I')}.jpg")
+        ruta = os.path.join(DIR_RETRATOS,
+                            f"{sujeto['alias'].replace('Í', 'I')}.jpg")
         if os.path.exists(ruta):
             c.drawImage(ImageReader(ruta), x_foto, y_foto, lado_foto, lado_foto)
         else:
