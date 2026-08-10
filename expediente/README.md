@@ -43,6 +43,24 @@ Se regenera con `python3 build_demo.py`.
 
 ---
 
+## El teaser
+
+`TEASER_002.mp4` — 21 segundos, vertical, ~6 MB. Para tirar al grupo familiar
+unos días antes y que lleguen con ganas. No revela nada: muestra la portada, el
+sello, las diez caras en el corcho y el hilo rojo.
+
+```bash
+python3 make_teaser.py               # 1080×1920
+python3 make_teaser.py --horizontal   # 1920×1080
+```
+
+No es video generado: son cuadros compuestos con el mismo `design.py` y unidos
+con ffmpeg (`apt-get install ffmpeg`). La portada sale del PDF ya compuesto y
+las polaroids de `photos_fbi/`, así que el teaser no puede quedar desfasado del
+material impreso. Sin audio — si querés música, se la ponés al subirlo.
+
+---
+
 ## Cómo se juega
 
 Diez personas, tres equipos, **75 – 90 minutos**.
