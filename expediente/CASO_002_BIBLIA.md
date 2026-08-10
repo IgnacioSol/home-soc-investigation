@@ -112,7 +112,7 @@ ABUELO WILLIAM GUILLERMO  «Bob el Constructor»   † VÍCTIMA
 └── TÍA ERICKA + TÍO YOYÓ ──── PAZ (no juega, sétimo)
 
 PAREJAS:  MARCE (02)→Fío · DALEEK (05)→Jime · MARIELA (07)→Nacho · DEYLER (10)→Fabi
-NICOLE (03): PENDIENTE DE UBICAR — ver §9
+NICOLE (03): mejor amiga de FÍO — sin vínculo familiar
 ```
 
 ---
