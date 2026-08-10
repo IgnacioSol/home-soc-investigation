@@ -177,8 +177,29 @@ def detectar(bgr):
 # ─── Paso 2 — Recorte cuadrado ───────────────────────────────────────────────
 
 
-def recortar(pil, caja):
+# Ajuste manual del encuadre, por alias.
+#
+# La cascada devuelve una caja que no siempre cubre la cabeza entera: con la
+# cara ladeada, o con el pelo tapando la frente, la caja sale chica y el
+# recorte de 3.1× termina siendo un plano mucho más abierto que el del resto.
+# Como el encuadre parejo es lo que hace funcionar la rejilla de la hoja de
+# respuestas, estos casos se corrigen a mano en vez de tocar el multiplicador
+# global y descuadrar a los otros nueve.
+#
+#   zoom  <1 acerca, >1 aleja        dx, dy  desplazan, en fracción del lado
+AJUSTES = {
+    "MARIELA": {"zoom": 0.72, "dy": -0.04},
+    # Estas tres llegaron como avatar circular sobre fondo: la cara ocupa poco
+    # del original y el recorte automático las deja más lejos que al resto.
+    "NACHO": {"zoom": 0.80},
+    "NANA": {"zoom": 0.72},
+    "FABI": {"zoom": 0.80},
+}
+
+
+def recortar(pil, caja, ajuste=None):
     """Cuadrado centrado en la cara, desplazado hacia abajo para los hombros."""
+    ajuste = ajuste or {}
     ancho, alto = pil.size
     if caja is None:
         lado = min(ancho, alto)
@@ -186,9 +207,9 @@ def recortar(pil, caja):
         cy = alto * 0.42 if alto > ancho else alto / 2
     else:
         x, y, w, h = caja
-        lado = w * 3.1  # cabeza + hombros
-        cx = x + w / 2
-        cy = y + h / 2 + 0.10 * lado
+        lado = w * 3.1 * ajuste.get("zoom", 1.0)  # cabeza + hombros
+        cx = x + w / 2 + ajuste.get("dx", 0.0) * lado
+        cy = y + h / 2 + (0.10 + ajuste.get("dy", 0.0)) * lado
 
     lado = min(lado, ancho, alto)
     izq = int(round(min(max(cx - lado / 2, 0), ancho - lado)))
@@ -198,7 +219,7 @@ def recortar(pil, caja):
         # La caja de Haar suele empezar en la frente, así que el pelo queda por
         # encima. Sin reservar ese aire, el desplazamiento hacia los hombros
         # termina cortando la coronilla.
-        aire = 0.95 * caja[3]
+        aire = 0.95 * caja[3] * ajuste.get("zoom", 1.0)
         tope_maximo = int(round(caja[1] - aire))
         arr = min(arr, max(tope_maximo, 0))
         arr = min(arr, int(alto - lado))
@@ -246,7 +267,7 @@ def procesar(alias, ruta_origen):
     bgr = cv2.cvtColor(np.asarray(pil), cv2.COLOR_RGB2BGR)
     caja = detectar(bgr)
 
-    salida = filtro_archivo(recortar(pil, caja))
+    salida = filtro_archivo(recortar(pil, caja, AJUSTES.get(alias)))
     destino = os.path.join(DIR_SALIDA, f"{ARCHIVO_DE_ALIAS[alias]}.jpg")
     salida.save(destino, "JPEG", quality=94, subsampling=0)
     return destino, caja
