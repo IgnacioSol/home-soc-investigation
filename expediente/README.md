@@ -57,7 +57,13 @@ python3 make_teaser.py --horizontal   # 1920×1080
 No es video generado: son cuadros compuestos con el mismo `design.py` y unidos
 con ffmpeg (`apt-get install ffmpeg`). La portada sale del PDF ya compuesto y
 las polaroids de `photos_fbi/`, así que el teaser no puede quedar desfasado del
-material impreso. Sin audio — si querés música, se la ponés al subirlo.
+material impreso.
+
+**El audio también es sintetizado**, no hay música de archivo: `audio_teaser.py`
+construye con numpy el drone de tensión, el tic-tac, el golpe del sello, los
+chasquidos de las polaroids, el riser del hilo y las teclas de la máquina. Los
+tiempos se derivan del mismo `GUION` que compone el video, así que reordenar una
+escena reacomoda el audio solo. Con `--sin-audio` sale mudo.
 
 ---
 

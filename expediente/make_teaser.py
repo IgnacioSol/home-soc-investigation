@@ -25,6 +25,7 @@ import tempfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
+import audio_teaser as au
 import caso
 import evidencia_lib as ev
 from evidencia_lib import fuente, medir
@@ -336,12 +337,71 @@ class Teaser:
                                   indice)
 
 
+# ─── Banda sonora ────────────────────────────────────────────────────────────
+
+
+def inicio_de(nombre):
+    """Segundo en que arranca una escena del guion."""
+    t = 0.0
+    for escena, dur in GUION:
+        if escena == nombre:
+            return t
+        t += dur
+    raise KeyError(nombre)
+
+
+# Las tres líneas del cierre, con el mismo calendario que usa cierre_frame.
+CIERRE_LINEAS = [(1.0, 24), (1.9, 19), (2.9, 15)]
+PASO_TECLA = 0.045
+
+
+def construir_eventos(duracion):
+    """
+    Lista de (segundo, sonido) alineada con la animación.
+
+    Los tiempos se derivan del mismo GUION que compone el video, así que si se
+    reordena una escena el audio la sigue sin tocar nada más.
+    """
+    eventos = []
+
+    # Reloj de fondo hasta que el hilo toma el mando.
+    for i in range(1, int(inicio_de("hilo"))):
+        eventos.append((i + 0.05, au.tic(nivel=0.16, semilla=i)))
+
+    # El sello cae a los 0.55 s de su escena, igual que en sello_frame.
+    eventos.append((inicio_de("sello") + 0.55, au.golpe_sello()))
+
+    # Una polaroid por tramo, con el mismo reparto que polaroids_frame.
+    inicio_pol = inicio_de("polaroids")
+    por_pieza = dict(GUION)["polaroids"] / len(caso.SUJETOS)
+    for i in range(len(caso.SUJETOS)):
+        eventos.append((inicio_pol + i * por_pieza,
+                        au.clac_papel(nivel=0.40, semilla=i * 3)))
+
+    # Riser mientras se traza el hilo, y golpe al cortar a negro.
+    dur_hilo = dict(GUION)["hilo"]
+    eventos.append((inicio_de("hilo"), au.riser(dur_hilo)))
+    eventos.append((inicio_de("cierre"), au.impacto(nivel=0.85)))
+
+    # Máquina de escribir, una tecla por letra.
+    inicio_cierre = inicio_de("cierre")
+    for k, (arranque, letras) in enumerate(CIERRE_LINEAS):
+        for j in range(letras):
+            eventos.append((inicio_cierre + arranque + j * PASO_TECLA,
+                            au.tecla(nivel=0.22, semilla=k * 40 + j)))
+
+    eventos.append((duracion - 1.9, au.impacto(nivel=0.7, caida=1.4)))
+    return eventos
+
+
 # ─── Montaje ─────────────────────────────────────────────────────────────────
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--horizontal", action="store_true")
+    parser.add_argument("--sin-audio", action="store_true",
+                        help="deja el video mudo")
     parser.add_argument("-o", "--salida", default=None)
     args = parser.parse_args()
 
@@ -366,13 +426,20 @@ def main():
         # El grano por cuadro rompe la compresión temporal: sin denoise el
         # archivo pasa de 90 MB y no entra por WhatsApp. hqdn3d limpia el ruido
         # entre cuadros y deja el grano espacial, que es el que se ve.
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
-             "-i", os.path.join(tmp, "f%05d.jpg"),
-             "-vf", "hqdn3d=2:1.5:4:4",
-             "-c:v", "libx264", "-preset", "slow", "-crf", "26",
-             "-pix_fmt", "yuv420p", "-movflags", "+faststart", salida],
-            check=True)
+        orden = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
+                 "-i", os.path.join(tmp, "f%05d.jpg")]
+
+        if not args.sin_audio:
+            duracion = total / FPS
+            pista = au.construir_pista(construir_eventos(duracion), duracion)
+            wav = au.guardar_wav(pista, os.path.join(tmp, "pista.wav"))
+            orden += ["-i", wav, "-c:a", "aac", "-b:a", "160k", "-shortest"]
+            print("  · banda sonora sintetizada")
+
+        orden += ["-vf", "hqdn3d=2:1.5:4:4",
+                  "-c:v", "libx264", "-preset", "slow", "-crf", "26",
+                  "-pix_fmt", "yuv420p", "-movflags", "+faststart", salida]
+        subprocess.run(orden, check=True)
 
     print(f"  ✓  {salida}   {total / FPS:.1f} s")
 
